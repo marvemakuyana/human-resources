@@ -18,6 +18,10 @@ app.use(bodyParser.json());
 
 app.use("/api/employee", employeeRoute);
 
+app.use(function (req, res) {
+  res.status(404).json({ error: "Not Found!" });
+});
+
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal server errror";
