@@ -18,6 +18,12 @@ app.use(bodyParser.json());
 
 app.use("/api/employee", employeeRoute);
 
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal server errror";
+  return res.status(statusCode).json({ error: message });
+});
+
 app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
