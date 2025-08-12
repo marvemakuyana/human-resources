@@ -1,0 +1,20 @@
+body{
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+.iconDelete, .iconEdit{
+  fill: hsl(0 0% 45.1%);
+  transition: fill 0.2s ease;
+}
+.iconDelete:hover{
+  fill: rgb(239 68 68 );
+  cursor: pointer;
+}
+.iconEdit:hover{
+  fill: rgb(59 130 246 );
+  cursor: pointer;
+}
