@@ -2,6 +2,7 @@ import { VStack } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import EmployeeTable from "./components/ui/EmployeeTable";
 import { baseUrl } from "../constant/global-variable";
+import InputEmployee from "./components/ui/InputEmployee";
 
 const App = () => {
   async function fetchEmployeeDetails() {
@@ -23,6 +24,7 @@ const App = () => {
 
   return (
     <VStack gap="6" align="flex-start">
+      <InputEmployee />
       <EmployeeTable data={data} />
     </VStack>
   );

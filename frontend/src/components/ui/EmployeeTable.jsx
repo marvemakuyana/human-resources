@@ -1,7 +1,35 @@
 import { HStack, Stack, Table } from "@chakra-ui/react";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { baseUrl } from "../../../constant/global-variable";
+import { queryClient } from "../../../utils/queryClient";
+
 const EmployeeTable = ({ data }) => {
+  const mutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await fetch(baseUrl + "/" + id, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Employee details deleted!");
+      queryClient.invalidateQueries({ queryKey: ["employee_details"] });
+    },
+  });
+
   if (!data.length) {
     return <h1>No employee records found!</h1>;
   }
@@ -30,7 +58,11 @@ const EmployeeTable = ({ data }) => {
               <Table.Cell>{item.salary}</Table.Cell>
               <Table.Cell>
                 <HStack gap="3">
-                  <MdDelete size={20} className="iconDelete" />
+                  <MdDelete
+                    size={20}
+                    className="iconDelete"
+                    onClick={() => mutation.mutate(item.id)}
+                  />
                   <FaEdit size={20} className="iconEdit" />
                 </HStack>
               </Table.Cell>

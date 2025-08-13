@@ -18,3 +18,6 @@ body{
   fill: rgb(59 130 246 );
   cursor: pointer;
 }
+.select{
+  z-index: 10000;
+}
