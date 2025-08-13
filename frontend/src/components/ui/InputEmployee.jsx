@@ -92,6 +92,20 @@ const InputEmployee = ({ children, type = "add", data }) => {
         return;
       }
     }
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(info.email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    // Salary validation (int or decimal)
+    const salaryRegex = /^\d+(\.\d+)?$/;
+    if (!salaryRegex.test(info.salary)) {
+      toast.error("Salary must be a number");
+      return;
+    }
+
     const infoUpdated = { ...info, role: info.role || null };
     if (type === "add") {
       addEmployeeMutation.mutate(infoUpdated);
