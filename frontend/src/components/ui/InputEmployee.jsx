@@ -8,33 +8,114 @@ import {
   Portal,
   VStack,
 } from "@chakra-ui/react";
+import { toast } from "react-hot-toast";
+import { useMutation } from "@tanstack/react-query";
 import { Field } from "./field";
 import SelectRole from "./SelectRole";
+import { baseUrl } from "../../../constant/global-variable";
+import { queryClient } from "../../../utils/queryClient";
 
-const InputEmployee = () => {
-  const [info, setInfo] = useState({
-    name: "",
-    email: "",
-    age: "",
-    salary: "",
-    role: "",
+const InputEmployee = ({ children, type = "add", data }) => {
+  const [open, setOpen] = useState(false);
+  const [info, setInfo] = useState(
+    type === "add"
+      ? {
+          name: "",
+          email: "",
+          age: "",
+          salary: "",
+          role: "",
+        }
+      : data
+  );
+  const requiredFields = ["name", "age", "salary", "email"];
+  const addEmployeeMutation = useMutation({
+    mutationFn: async (info) => {
+      const response = await fetch(baseUrl, {
+        method: "POST",
+        body: JSON.stringify(info),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      setInfo({ name: "", email: "", age: "", salary: "", role: "" });
+      setOpen(false);
+      toast.success("Employee details added!");
+      queryClient.invalidateQueries({ queryKey: ["employee_details"] });
+    },
   });
+
+  const updateEmployeeMutation = useMutation({
+    mutationFn: async (info) => {
+      const response = await fetch(baseUrl + "/" + info.id, {
+        method: "PUT",
+        body: JSON.stringify(info),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      setInfo({ name: "", email: "", age: "", salary: "", role: "" });
+      setOpen(false);
+      toast.success("Employee details updated!");
+      queryClient.invalidateQueries({ queryKey: ["employee_details"] });
+    },
+  });
+
   function handleChange(e) {
     setInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
-  console.log(info);
+
+  function handleSubmit() {
+    for (const key of requiredFields) {
+      if (!info[key].toString().trim()) {
+        toast.error("Missing Fields");
+        return;
+      }
+    }
+    const infoUpdated = { ...info, role: info.role || null };
+    if (type === "add") {
+      addEmployeeMutation.mutate(infoUpdated);
+    } else {
+      updateEmployeeMutation.mutate(infoUpdated);
+    }
+  }
 
   return (
-    <Dialog.Root placement="center" motionPreset="slide-in-bottom">
-      <Dialog.Trigger asChild>
-        <Button variant="outline">Add Employee </Button>
-      </Dialog.Trigger>
+    <Dialog.Root
+      placement="center"
+      motionPreset="slide-in-bottom"
+      open={open}
+      onOpenChange={(e) => setOpen(e.open)}
+    >
+      {children}
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Dialog.Title>Add Employee</Dialog.Title>
+              <Dialog.Title>
+                {type === "add" ? "Add Employee" : "Update Employee"}
+              </Dialog.Title>
             </Dialog.Header>
             <Dialog.Body>
               <VStack gap="4" alignItems="flex-start">
@@ -78,7 +159,9 @@ const InputEmployee = () => {
               <Dialog.ActionTrigger asChild>
                 <Button variant="outline">Cancel</Button>
               </Dialog.ActionTrigger>
-              <Button>Save</Button>
+              <Button onClick={handleSubmit}>
+                {type === "add" ? "Add" : "Update"}
+              </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
               <CloseButton size="sm" />

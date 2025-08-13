@@ -1,10 +1,11 @@
-import { HStack, Stack, Table } from "@chakra-ui/react";
+import { HStack, Stack, Table, Dialog } from "@chakra-ui/react";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { baseUrl } from "../../../constant/global-variable";
 import { queryClient } from "../../../utils/queryClient";
+import InputEmployee from "./InputEmployee";
 
 const EmployeeTable = ({ data }) => {
   const mutation = useMutation({
@@ -63,7 +64,11 @@ const EmployeeTable = ({ data }) => {
                     className="iconDelete"
                     onClick={() => mutation.mutate(item.id)}
                   />
-                  <FaEdit size={20} className="iconEdit" />
+                  <InputEmployee data={item} type="update">
+                    <Dialog.Trigger asChild>
+                      <FaEdit size={20} className="iconEdit" />
+                    </Dialog.Trigger>
+                  </InputEmployee>
                 </HStack>
               </Table.Cell>
             </Table.Row>
